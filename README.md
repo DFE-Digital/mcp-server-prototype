@@ -83,8 +83,8 @@ Add the following to your `secrets.json` (User secrets) and update with relevant
 {
   "AzureSearch:Endpoint": "https://<your-resource>.search.windows.net",
   "AzureSearch:ApiKey": "[API-Key]",
-  "AzureSearch:Indexes:": "[Ofsted Index]",
-  "AzureSearch:Indexes:establishment": "[Establishment Index]"
+  "AzureSearch:Indexes:Ofsted": "[Ofsted Index]",
+  "AzureSearch:Indexes:Establishment": "[Establishment Index]"
 }
 ```
 
@@ -124,18 +124,6 @@ You can now browse tools, invoke them with parameters, and inspect raw JSON resp
 
 ### Connecting to an AI Client
 
-```
-
-
-## Project Structure
-
-```
-├── Tools/                  # MCP tool implementations
-│   └── AzureAISearchTools.cs
-├── appsettings.json        # Server configuration
-├── Program.cs              # MCP server setup & middleware
-└── README.md
-```
 
 ## Resources
 
