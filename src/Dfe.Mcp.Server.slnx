@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/tests/">
+    <Project Path="tests/Dfe.McpServer.Web.Tests/Dfe.Mcp.Server.Web.Tests.csproj" />
+  </Folder>
+  <Project Path="Dfe.Mcp.Server.Application/Dfe.Mcp.Server.Application.csproj" />
+  <Project Path="Dfe.Mcp.Server.Domain/Dfe.Mcp.Server.Domain.csproj" />
+  <Project Path="Dfe.Mcp.Server.Web/Dfe.Mcp.Server.Web.csproj" />
+</Solution>
