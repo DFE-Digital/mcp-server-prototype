@@ -124,18 +124,6 @@ You can now browse tools, invoke them with parameters, and inspect raw JSON resp
 
 ### Connecting to an AI Client
 
-```
-
-
-## Project Structure
-
-```
-├── Tools/                  # MCP tool implementations
-│   └── AzureAISearchTools.cs
-├── appsettings.json        # Server configuration
-├── Program.cs              # MCP server setup & middleware
-└── README.md
-```
 
 ## Resources
 
