@@ -9,11 +9,14 @@ public static class SecurityConfigurationExtension
     /// </summary>
     /// <param name="app"></param>
     /// <returns>An instance of <see cref="IApplicationBuilder"/></returns>
-    public static IApplicationBuilder AddSecurity(this IApplicationBuilder app)
+    public static IApplicationBuilder AddSecurityLayer(this IApplicationBuilder app)
     {
         app.AddForwardedHeaders();
         app.AddSecurityHeaders();
         app.UseHttpsRedirection();
+          
+        app.UseAuthentication();
+        app.UseAuthorization();
         return app;
     }
     private static IApplicationBuilder AddForwardedHeaders(this IApplicationBuilder app)

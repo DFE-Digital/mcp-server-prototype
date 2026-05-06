@@ -1,4 +1,6 @@
-﻿using ModelContextProtocol;
+﻿using Dfe.Mcp.Server.Application.Contants;
+using Microsoft.AspNetCore.Authorization;
+using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
@@ -11,8 +13,8 @@ namespace Dfe.Mcp.Server.Application.Primitives.Tools;
 [McpServerToolType]
 public class ElicitationTools
 {
-    [McpServerTool(Name = "get_current_datetime")]
-    [Description("Provides the current date and time in UTC format")]
+    [McpServerTool(Name = "get_current_datetime", UseStructuredContent = true), Description("Provides the current date and time in UTC format")]
+    [Authorize(Policy = McpRoles.ReadTools)]
     public async Task<string> GetCurrentDateTime2(McpServer mcpServer)
     {
         if (mcpServer.ClientCapabilities?.Elicitation == null)

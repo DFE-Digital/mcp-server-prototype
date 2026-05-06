@@ -1,6 +1,6 @@
 ﻿namespace Dfe.Mcp.Server.Application.Services.Interfaces;
 
-public interface IRepositoryRetrieverService
+public interface IFileRetrieverService
 {
     string Resolve(string userPath);
 }

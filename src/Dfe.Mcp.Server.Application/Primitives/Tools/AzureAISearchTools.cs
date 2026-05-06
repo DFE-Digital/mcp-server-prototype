@@ -1,4 +1,6 @@
-﻿using Dfe.Mcp.Server.Application.Services.Interfaces;
+﻿using Dfe.Mcp.Server.Application.Contants;
+using Dfe.Mcp.Server.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
 using System.Text.Json;
@@ -11,8 +13,9 @@ namespace Dfe.Mcp.Server.Application.Primitives.Tools;
 [McpServerToolType]
 public sealed class AzureAISearchTools(IAzureSearchService searchService)
 {
-    [McpServerTool(Name = "search_ofsted")]
-    [Description("Search the Ofsted information.")]
+    [McpServerTool(Name = "search_ofsted", UseStructuredContent = true, Title = "Search Ofsted", ReadOnly = true),
+        Description("Search the Ofsted information.")]
+    [Authorize(Policy = McpRoles.ReadTools)]
     public async Task<string> SearchOfsted(
         [Description("Full-text search query. Use '*' to return all records. Supports Lucene syntax e.g. 'outstanding AND primarySchool'.")] string query,
         [Description("Maximum number of results to return (1–50). Default: 10.")] int top = 10, 
@@ -25,8 +28,9 @@ public sealed class AzureAISearchTools(IAzureSearchService searchService)
         return JsonSerializer.Serialize(response, _jsonOptions);
     }
 
-    [McpServerTool(Name = "search_establishment")]
-    [Description("Search the establishment or school or trust information.")]
+    [McpServerTool(Name = "search_establishment", UseStructuredContent = true, Title = "Search Establishment or school or academy", ReadOnly = true),
+        Description("Search the establishment or school or academy or trust information.")]
+    [Authorize(Policy = McpRoles.ReadTools)] 
     public async Task<string> SearchEstablishment(
         [Description("Full-text search query. Use '*' to return all records. Supports Lucene syntax e.g. 'Greenfield AND primary'.")] string query, 
         [Description("Maximum number of results to return (1–50). Default: 10.")] int top = 10, 

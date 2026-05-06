@@ -13,25 +13,13 @@ var mcpServerConfiguration = app.Services.GetRequiredService<McpServerConfigurat
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseCors(InfrastructureConfiguration.DevelopmentCoresPolicyName); 
+    app.UseCors(InfrastructureConfiguration.CorsPolicyName); 
 } 
 
 app.MapHealthChecks(mcpServerConfiguration.HealthCheckEndpoint);
 
-app.AddSecurity();
+app.AddSecurityLayer();
 
-//app.UseApiKeyAuthentication();
-
-app.MapMcp(mcpServerConfiguration.Endpoint);
-
-app.MapGet("/", () => Results.Ok(new
-{
-    name = mcpServerConfiguration.Name,
-    title = mcpServerConfiguration.Title,
-    version = mcpServerConfiguration.Version,
-    mcp = mcpServerConfiguration.Endpoint,
-    description = mcpServerConfiguration.Description,
-    health = mcpServerConfiguration.HealthCheckEndpoint
-})); 
+app.SetServerConfiguration(builder.Configuration, mcpServerConfiguration);
 
 await app.RunAsync();

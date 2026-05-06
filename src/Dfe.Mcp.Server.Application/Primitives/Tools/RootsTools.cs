@@ -1,16 +1,18 @@
-﻿using Dfe.Mcp.Server.Application.Services.Interfaces;
+﻿using Dfe.Mcp.Server.Application.Contants;
+using Dfe.Mcp.Server.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
 
 namespace Dfe.Mcp.Server.Application.Primitives.Tools;
 
 [McpServerToolType]
-public class RepoTools(IRepositoryRetrieverService repositoryRetrieverService)
+public class RepoTools(IFileRetrieverService repositoryRetrieverService)
 {
-    [McpServerTool(Name = "read_file")]
-    [Description("Reads a UTF-8 text file from the repository (restricted to REPO_ROOT).")]
+    [McpServerTool(Name = "read_file"), Description("Reads a file from restricted server location.")]
+    [Authorize(Policy = McpRoles.ReadTools)]
     public async Task<string> ReadFile(
-        [Description("Path relative to repo root, e.g. src/Domain/Order.cs")] string path)
+        [Description("Path relative to repo root, e.g. src/Domain/file.txt")] string path)
     {
         var fullPath = repositoryRetrieverService.Resolve(path);
 
@@ -27,7 +29,9 @@ public class RepoTools(IRepositoryRetrieverService repositoryRetrieverService)
         return text;
     }
 
-    [McpServerTool, Description("Lists files and directories under a repository path (restricted to REPO_ROOT).")]
+    [McpServerTool(Name ="List_directory",Title = "List directory and files")]
+    [Description("Lists files and directories under a restricted server path.")]
+    [Authorize(Policy = McpRoles.ReadTools)]
     public Task<string[]> ListDir(
         [Description("Path relative to repo root, e.g. src/ or docs/")] string path = ".")
     {
@@ -46,9 +50,10 @@ public class RepoTools(IRepositoryRetrieverService repositoryRetrieverService)
     }
 
     [McpServerTool(Name = "search_code")]
-    [Description("Searches for a string in text files within the repository (restricted to REPO_ROOT).")]
+    [Description("Searches for a string in text files within the restricted server location.")]
+    [Authorize(Policy = McpRoles.ReadTools)]
     public async Task<string> SearchCode(
-        [Description("Search query, e.g. 'IOrderService' or 'public class Order'")] string query)
+        [Description("Search query, e.g. 'Ofsted'")] string query)
     {
         if (string.IsNullOrWhiteSpace(query))
             return "Query must not be empty.";
