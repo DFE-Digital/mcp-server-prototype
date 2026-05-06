@@ -4,5 +4,6 @@ namespace Dfe.Mcp.Server.Application.Configurations;
 
 public class PromptConfiguration
 {
-    public Dictionary<PromptType, string> Files { get; set; } = [];
+    public Dictionary<SystemPromptType, string> SystemPrompts { get; set; } = [];
+    public Dictionary<UserPromptType, string> UserPrompts { get; set; } = [];
 }

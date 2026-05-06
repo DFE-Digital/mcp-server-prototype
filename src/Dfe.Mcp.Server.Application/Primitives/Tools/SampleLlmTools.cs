@@ -1,4 +1,6 @@
-﻿using ModelContextProtocol.Protocol;
+﻿using Dfe.Mcp.Server.Application.Contants;
+using Microsoft.AspNetCore.Authorization;
+using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
 
@@ -12,7 +14,8 @@ public class SampleLlmTool
 {
     private SampleLlmTool() { }
 
-    [McpServerTool(Name = "sampleLLM"), Description("Samples from an LLM using MCP's sampling feature")]
+    [McpServerTool(Name = "sampleLLM", UseStructuredContent = true), Description("Samples from an LLM using MCP's sampling feature")]
+    [Authorize(Policy = McpRoles.ReadTools)]
     public static async Task<string> SampleLLM(
         McpServer server,
         [Description("The prompt to send to the LLM")] string prompt,

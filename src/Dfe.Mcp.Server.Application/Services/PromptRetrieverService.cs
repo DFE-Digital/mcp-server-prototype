@@ -9,13 +9,19 @@ namespace Dfe.Mcp.Server.Application.Services;
 
 public class PromptRetrieverService(IPromptFileReader fileReader, PromptConfiguration promptConfiguration, ILogger<PromptRetrieverService> logger) : IPromptRetrieverService
 {
-    public string GetPrompt(PromptType type)
-    { 
-        if (!promptConfiguration.Files.TryGetValue(type, out var path))
+    public string GetSystemPrompt(SystemPromptType promptType) =>
+        GetPrompt(promptConfiguration.SystemPrompts, promptType, GetSystemEmbeddedFallback);
+
+    public string GetUserPrompt(UserPromptType promptType) =>
+        GetPrompt(promptConfiguration.UserPrompts, promptType, GetUserEmbeddedFallback);
+
+    private string GetPrompt<TPromptType>(IDictionary<TPromptType, string> prompts, TPromptType promptType, Func<TPromptType, string> fallback) where TPromptType : notnull
+    {
+        if (!prompts.TryGetValue(promptType, out var path))
         {
-            logger.LogWarning("No prompt configured for type: {Type}", type);
-            return GetEmbeddedFallback(type);
-        } 
+            logger.LogWarning("No prompt configured for type: {PromptType}", promptType);
+            return fallback(promptType);
+        }
 
         try
         {
@@ -23,21 +29,23 @@ public class PromptRetrieverService(IPromptFileReader fileReader, PromptConfigur
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Failed to load prompt file for {Type}. Using fallback.", type);
+            logger.LogWarning(ex, "Failed to load prompt file for {PromptType}. Using fallback.", promptType);
+            return fallback(promptType);
         }
-         
-        return GetEmbeddedFallback(type);
     }
 
-    private static string GetEmbeddedFallback(PromptType type)
+    private static string GetSystemEmbeddedFallback(SystemPromptType type) => type switch
     {
-        return type switch
-        {
-            PromptType.SystemInstruction => PromptType.SystemInstruction.GetDescription(), 
-            PromptType.Ofsted => PromptType.Ofsted.GetDescription(), 
-            PromptType.Concern => PromptType.Concern.GetDescription(), 
-            _ =>
-                "You are a general-purpose AI assistant."
-        };
-    }
+        SystemPromptType.BriefingTool => SystemPromptType.BriefingTool.GetDescription(),
+        _ => "You are a general-purpose AI assistant."
+    };
+
+    private static string GetUserEmbeddedFallback(UserPromptType promptType) => promptType switch
+    {
+        UserPromptType.Ofsted => UserPromptType.Ofsted.GetDescription(),
+        UserPromptType.OfstedSummary => UserPromptType.OfstedSummary.GetDescription(),
+        UserPromptType.OverallSummary => UserPromptType.OverallSummary.GetDescription(),
+        UserPromptType.Concerns => UserPromptType.Concerns.GetDescription(),
+        _ => "You are a general-purpose user prompt."
+    };
 }

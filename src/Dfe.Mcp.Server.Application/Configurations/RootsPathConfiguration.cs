@@ -2,5 +2,5 @@
 
 public class RestrictedPathsConfiguration
 {
-    public string GithubPath { get; set; } = string.Empty;
+    public string ServerPath { get; set; } = string.Empty;
 }

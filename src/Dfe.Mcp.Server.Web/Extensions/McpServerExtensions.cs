@@ -34,7 +34,8 @@ public static class McpServerExtensions
             })
             .WithToolsFromAssembly(typeof(AzureAISearchTools).Assembly)
             .WithResourcesFromAssembly(typeof(OfstedRatingResource).Assembly)
-            .WithPromptsFromAssembly(typeof(OfstedPrompts).Assembly);
+            .WithPromptsFromAssembly(typeof(Prompts).Assembly)
+            .AddAuthorizationFilters();
 
         return services;
     }

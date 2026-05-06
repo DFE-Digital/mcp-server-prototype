@@ -1,4 +1,6 @@
-﻿using Dfe.Mcp.Server.Domain;
+﻿using Dfe.Mcp.Server.Application.Contants;
+using Dfe.Mcp.Server.Domain;
+using Microsoft.AspNetCore.Authorization;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
 using System.Text.Json;
@@ -33,12 +35,14 @@ public class OfstedRatingResource
     ];
 
     [McpServerResource(UriTemplate = "ofsted://ratings", Title = "All Ofsted ratings", Name = "GetAllOfstedRatings", MimeType = "application/json"), Description("Returns all Ofsted ratings as JSON.")]
+    [Authorize(Policy = McpRoles.ReadResource)]
     public Task<string> GetAllOfstedRatingsAsync()
     {
         return Task.FromResult(JsonSerializer.Serialize(_ratings));
     }
 
     [McpServerResource(UriTemplate = "ofsted://ratings/{id}", Title = "Get Ofsted ratings by id", Name = "GetOfstedRatingById", MimeType = "application/json"), Description("Returns a single Ofsted rating by ID.")]
+    [Authorize(Policy = McpRoles.ReadResource)]
     public Task<string> GetOfstedRatingByIdAsync(
         [Description("The rating ID")] int id)
     {

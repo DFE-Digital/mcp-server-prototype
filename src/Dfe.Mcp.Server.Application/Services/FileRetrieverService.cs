@@ -1,19 +1,18 @@
 ﻿using Dfe.Mcp.Server.Application.Configurations;
-using Dfe.Mcp.Server.Application.Primitives.Tools;
 using Dfe.Mcp.Server.Application.Services.Interfaces;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
 namespace Dfe.Mcp.Server.Application.Services;
 
-public class RepositoryRetrieverService(RestrictedPathsConfiguration restrictedPathsConfiguration) : IRepositoryRetrieverService
+public class FileRetrieverService(RestrictedPathsConfiguration restrictedPathsConfiguration) : IFileRetrieverService
 {
     public string Resolve(string userPath)
     {
         if (IsUrl(userPath))
             userPath = ExtractPathFromUrl(userPath);
 
-        var repoRoot = Path.GetFullPath(restrictedPathsConfiguration.GithubPath);
+        var repoRoot = Path.GetFullPath(restrictedPathsConfiguration.ServerPath);
 
         var combined = Path.GetFullPath(Path.Combine(repoRoot, userPath ?? string.Empty));
          

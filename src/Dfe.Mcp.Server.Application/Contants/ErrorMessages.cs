@@ -2,7 +2,7 @@
 
 public static class InfrastructureConfiguration
 {
-    public const string DevelopmentCoresPolicyName = "Development";
+    public const string CorsPolicyName = "ConfiguredCorsPolicy"; 
 }
 
 public static class ErrorMessages
