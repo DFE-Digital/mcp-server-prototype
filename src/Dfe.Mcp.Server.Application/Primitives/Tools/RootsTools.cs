@@ -10,7 +10,7 @@ namespace Dfe.Mcp.Server.Application.Primitives.Tools;
 public class RepoTools(IFileRetrieverService repositoryRetrieverService)
 {
     [McpServerTool(Name = "read_file"), Description("Reads a file from restricted server location.")]
-    [Authorize(Policy = McpRoles.ReadTools)]
+    [Authorize(Policy = Policy.ToolsAccess)]
     public async Task<string> ReadFile(
         [Description("Path relative to repo root, e.g. src/Domain/file.txt")] string path)
     {
@@ -31,7 +31,7 @@ public class RepoTools(IFileRetrieverService repositoryRetrieverService)
 
     [McpServerTool(Name ="List_directory",Title = "List directory and files")]
     [Description("Lists files and directories under a restricted server path.")]
-    [Authorize(Policy = McpRoles.ReadTools)]
+    [Authorize(Policy = Policy.ToolsAccess)]
     public Task<string[]> ListDir(
         [Description("Path relative to repo root, e.g. src/ or docs/")] string path = ".")
     {
@@ -51,7 +51,7 @@ public class RepoTools(IFileRetrieverService repositoryRetrieverService)
 
     [McpServerTool(Name = "search_code")]
     [Description("Searches for a string in text files within the restricted server location.")]
-    [Authorize(Policy = McpRoles.ReadTools)]
+    [Authorize(Policy = Policy.ToolsAccess)]
     public async Task<string> SearchCode(
         [Description("Search query, e.g. 'Ofsted'")] string query)
     {

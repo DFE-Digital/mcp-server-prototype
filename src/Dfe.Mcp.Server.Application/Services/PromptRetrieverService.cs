@@ -34,6 +34,10 @@ public class PromptRetrieverService(IPromptFileReader fileReader, PromptConfigur
         }
     }
 
+    public string Render(string template, Dictionary<string, string> values)
+        => values.Aggregate(template, (current, kv) =>
+            current.Replace($"{{{kv.Key}}}", kv.Value));
+
     private static string GetSystemEmbeddedFallback(SystemPromptType type) => type switch
     {
         SystemPromptType.BriefingTool => SystemPromptType.BriefingTool.GetDescription(),
@@ -46,6 +50,7 @@ public class PromptRetrieverService(IPromptFileReader fileReader, PromptConfigur
         UserPromptType.OfstedSummary => UserPromptType.OfstedSummary.GetDescription(),
         UserPromptType.OverallSummary => UserPromptType.OverallSummary.GetDescription(),
         UserPromptType.Concerns => UserPromptType.Concerns.GetDescription(),
+        UserPromptType.OfstedSummaryTemplate => UserPromptType.OfstedSummaryTemplate.GetDescription(),
         _ => "You are a general-purpose user prompt."
     };
 }

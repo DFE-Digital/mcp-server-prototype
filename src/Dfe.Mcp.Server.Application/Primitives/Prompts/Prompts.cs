@@ -11,7 +11,7 @@ namespace Dfe.Mcp.Server.Application.Primitives.Prompts;
 public class Prompts(IPromptRetrieverService promptRetrieverService)
 {
     [McpServerPrompt(Name = "GetSystemPrompt", Title = "Gets system instruction prompt"), Description("Gets a system instruction prompt.")]
-    [Authorize(Policy = McpRoles.ReadPrompts)]
+    [Authorize(Policy = Policy.PromptAccess)]
     public string GetSystemPrompt(SystemPromptType promptType)
     {
         var prompt = promptRetrieverService.GetSystemPrompt(promptType);
@@ -22,7 +22,7 @@ public class Prompts(IPromptRetrieverService promptRetrieverService)
         return prompt;
     }
     [McpServerPrompt(Name = "GetUserPrompt", Title = "Gets user prompt"), Description("Gets the user prompt.")]
-    [Authorize(Policy = McpRoles.BriefingTool)]
+    [Authorize(Policy = Policy.PromptAccess)]
     public string GetUserPrompt(UserPromptType promptType)
     {
         var prompt = promptRetrieverService.GetUserPrompt(promptType);

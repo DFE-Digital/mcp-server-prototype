@@ -2,6 +2,7 @@
 using Dfe.Mcp.Server.Application.Primitives.Prompts;
 using Dfe.Mcp.Server.Application.Primitives.Resources;
 using Dfe.Mcp.Server.Application.Primitives.Tools;
+using ModelContextProtocol.Server;
 
 namespace Dfe.Mcp.Server.Web.Extensions;
 
@@ -34,8 +35,15 @@ public static class McpServerExtensions
             })
             .WithToolsFromAssembly(typeof(AzureAISearchTools).Assembly)
             .WithResourcesFromAssembly(typeof(OfstedRatingResource).Assembly)
-            .WithPromptsFromAssembly(typeof(Prompts).Assembly)
+            .WithPromptsFromAssembly(typeof(Prompts).Assembly) 
             .AddAuthorizationFilters();
+
+        var toolDescriptor = services.FirstOrDefault(d =>
+            d.ServiceType == typeof(McpServerTool) ||
+            d.ImplementationType == typeof(McpServerTool));
+
+        if (toolDescriptor != null)
+            services.Remove(toolDescriptor);
 
         return services;
     }

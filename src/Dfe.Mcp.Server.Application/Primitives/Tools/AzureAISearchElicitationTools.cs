@@ -14,7 +14,7 @@ public sealed class AzureAISearchElicitationTools(AzureAISearchTools searchTools
 
     [McpServerTool(Name = "elicit_search_ofsted", Title = "Search Ofsted (guided)", ReadOnly = true)]
     [Description("Interactively collects search parameters from the user, then searches Ofsted information.")]
-    [Authorize(Policy = McpRoles.ReadTools)]
+    [Authorize(Policy = Policy.ToolsAccess)]
     public async Task<string> ElicitSearchOfsted(CancellationToken cancellationToken = default)
     {
         if (server.ClientCapabilities?.Elicitation is null)
@@ -49,7 +49,7 @@ public sealed class AzureAISearchElicitationTools(AzureAISearchTools searchTools
      
     [McpServerTool(Name = "elicit_search_establishment", Title = "Search Establishment or school or academy (guided)", ReadOnly = true)]
     [Description("Interactively collects search parameters from the user, then searches establishment, school, academy, or trust information.")]
-    [Authorize(Policy = McpRoles.ReadTools)]
+    [Authorize(Policy = Policy.ToolsAccess)]
     public async Task<string> ElicitSearchEstablishment(CancellationToken cancellationToken = default)
     {
         if (server.ClientCapabilities?.Elicitation is null)

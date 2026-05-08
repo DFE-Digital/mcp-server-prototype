@@ -15,7 +15,7 @@ public sealed class AzureAISearchTools(IAzureSearchService searchService)
 {
     [McpServerTool(Name = "search_ofsted", UseStructuredContent = true, Title = "Search Ofsted", ReadOnly = true),
         Description("Search the Ofsted information.")]
-    [Authorize(Policy = McpRoles.ReadTools)]
+    [Authorize(Policy = Policy.ToolsAccess)]
     public async Task<string> SearchOfsted(
         [Description("Full-text search query. Use '*' to return all records. Supports Lucene syntax e.g. 'outstanding AND primarySchool'.")] string query,
         [Description("Maximum number of results to return (1–50). Default: 10.")] int top = 10, 
@@ -30,7 +30,7 @@ public sealed class AzureAISearchTools(IAzureSearchService searchService)
 
     [McpServerTool(Name = "search_establishment", UseStructuredContent = true, Title = "Search Establishment or school or academy", ReadOnly = true),
         Description("Search the establishment or school or academy or trust information.")]
-    [Authorize(Policy = McpRoles.ReadTools)] 
+    [Authorize(Policy = Policy.ToolsAccess)] 
     public async Task<string> SearchEstablishment(
         [Description("Full-text search query. Use '*' to return all records. Supports Lucene syntax e.g. 'Greenfield AND primary'.")] string query, 
         [Description("Maximum number of results to return (1–50). Default: 10.")] int top = 10, 

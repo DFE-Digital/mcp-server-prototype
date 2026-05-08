@@ -5,9 +5,11 @@ using Dfe.Mcp.Server.Application.FileRetrievers.Interfaces;
 using Dfe.Mcp.Server.Application.Services;
 using Dfe.Mcp.Server.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
 using ModelContextProtocol.Authentication;
 using ModelContextProtocol.Server;
+using System.Runtime.CompilerServices;
 
 namespace Dfe.Mcp.Server.Web.Extensions;
 
@@ -23,7 +25,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddMcpOptions(config);
         services.AddMcpServices();
-        services.AddAuthenticationAndAuthorisation(config); 
+        services.AddAuthenticationAndAuthorisation(config);
 
         // Health check 
         services.AddHealthChecks();
@@ -42,7 +44,7 @@ public static class ServiceCollectionExtensions
     /// <returns>An instance of <see cref="IServiceCollection"/></returns>
     private static IServiceCollection AddCorsPolicies(this IServiceCollection services, IConfiguration config)
     {
-        var allowedOrigins = config .GetSection("Cors:AllowedOrigins")
+        var allowedOrigins = config.GetSection("Cors:AllowedOrigins")
        .Get<string[]>() ?? [];
         services.AddCors(cors =>
         {
@@ -73,9 +75,9 @@ public static class ServiceCollectionExtensions
         var mcpServerOptions = config.GetSection("McpServer").Get<McpServerConfiguration>()
             ?? throw new InvalidOperationException("McpServer section is missing!");
 
-        var restrictedPathsOptions= config.GetSection("RestrictedPaths").Get<RestrictedPathsConfiguration>()
+        var restrictedPathsOptions = config.GetSection("RestrictedPaths").Get<RestrictedPathsConfiguration>()
             ?? throw new InvalidOperationException("RestrictedPaths section is missing!");
-         
+
         services.AddSingleton(azureSearchOptions);
         services.AddSingleton(promptFiles);
         services.AddSingleton(mcpServerOptions);
@@ -94,7 +96,31 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAzureSearchService, AzureSearchService>();
         services.AddSingleton<IPromptFileReader, PromptFileReader>();
         services.AddSingleton<IFileRetrieverService, FileRetrieverService>();
-        services.AddSingleton<IPromptRetrieverService, PromptRetrieverService>(); 
+        services.AddSingleton<IPromptRetrieverService, PromptRetrieverService>();
+        return services;
+    }
+
+    private static IServiceCollection SetPolicies(this IServiceCollection services)
+    {
+        services.AddAuthorization(options =>
+        {
+            var policies = new[]
+            {
+                (Policy.ToolsAccess,    McpScope.ReadTools,    McpRole.ReadTools),
+                (Policy.ResourceAccess, McpScope.ReadResource, McpRole.ReadResource),
+                (Policy.PromptAccess,   McpScope.ReadPrompts,  McpRole.ReadPrompts),
+            };
+
+            foreach (var (name, scope, role) in policies)
+                options.AddPolicy(name, policy => policy.RequireAssertion(ctx => HasAccess(ctx, scope, role)));
+        });
+
+        static bool HasAccess(AuthorizationHandlerContext ctx, string scope, string role) =>
+            ctx.User.HasClaim(Claim.ScopeName, scope) ||
+            ctx.User.HasClaim(Claim.ScopeUrl, scope) ||
+            ctx.User.IsInRole(role) ||
+            ctx.User.HasClaim(Claim.RoleName, role);
+
         return services;
     }
 
@@ -109,7 +135,7 @@ public static class ServiceCollectionExtensions
        .AddMicrosoftIdentityWebApi(config.GetSection("AzureAd"))
        .EnableTokenAcquisitionToCallDownstreamApi()
        .AddInMemoryTokenCaches()
-       .Services                  
+       .Services
        .AddAuthentication()
        .AddMcp(options =>
        {
@@ -117,22 +143,14 @@ public static class ServiceCollectionExtensions
            {
                Resource = serverBaseUrl,
                AuthorizationServers = { authorizationServer },
-               ScopesSupported = [McpRoles.ReadTools, McpRoles.ReadResource, McpRoles.ReadPrompts]
+               ScopesSupported = [McpRole.ReadTools, McpRole.ReadResource, McpRole.ReadPrompts]
            };
-       }); 
+       });
 
-        services.AddAuthorizationBuilder()
-            .AddPolicy(McpRoles.ReadTools,
-                p => p.RequireRole(McpRoles.ReadTools))
-            .AddPolicy(McpRoles.ReadResource,
-                p => p.RequireRole(McpRoles.ReadResource))
-            .AddPolicy(McpRoles.ReadPrompts,
-                p => p.RequireRole(McpRoles.ReadPrompts))
-            .AddPolicy(McpRoles.BriefingTool,
-                p => p.RequireRole(McpRoles.BriefingTool));
+        SetPolicies(services);
 
         services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
-        { 
+        {
             options.Events = new JwtBearerEvents
             {
                 OnChallenge = ctx =>
@@ -154,5 +172,5 @@ public static class ServiceCollectionExtensions
         });
 
         return services;
-    } 
+    }
 }

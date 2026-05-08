@@ -26,7 +26,10 @@ public static class SetServerConfigurationExtensions
             version = mcpServerConfiguration.Version,
             mcp = mcpServerConfiguration.Endpoint,
             description = mcpServerConfiguration.Description,
-            supported = new[] { McpRoles.ReadTools, McpRoles.ReadResource, McpRoles.ReadPrompts },
+            supported = new[] { 
+                McpScope.ReadTools, McpScope.ReadResource, McpScope.ReadPrompts,
+                McpRole.ReadTools, McpRole.ReadResource, McpRole.ReadPrompts,
+            },
             health = mcpServerConfiguration.HealthCheckEndpoint
         }));
 
