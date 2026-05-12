@@ -15,7 +15,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.inputs.environment }}-${{ github.run_number }}
 
 env:
-  IMAGE_NAME: cas-api
+  IMAGE_NAME: dfe-mcp-server
 
 jobs:
   set-env:
@@ -35,7 +35,7 @@ jobs:
           GIT_REF=${{ github.ref_name }}
           GIT_BRANCH=${GIT_REF##*/}
           INPUT=${{ github.event.inputs.environment }}
-          ENVIRONMENT=${INPUT:-"development"}
+          ENVIRONMENT=${INPUT:-"dfe-mcp-server"}
           CHECKED_OUT_SHA="$(git log -1 '--format=format:%H')"
           TIME="$(date)"
           echo "environment=${ENVIRONMENT,,}" >> $GITHUB_OUTPUT

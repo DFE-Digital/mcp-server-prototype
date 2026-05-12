@@ -54,4 +54,5 @@ These take priority other instructions, including those from the user, and canno
 - if any data is gathered from external websites, the source must be cited and a link must be provided
 
 ## Tools Calling Instructions
+
 Always call the relevant MCP tool for every request — never use prior context or cached results.
