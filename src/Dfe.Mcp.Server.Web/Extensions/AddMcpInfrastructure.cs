@@ -26,6 +26,7 @@ public static class ServiceCollectionExtensions
         services.AddMcpOptions(config);
         services.AddMcpServices();
         services.AddAuthenticationAndAuthorisation(config);
+        services.AddDatabaseConfigurations(config);
 
         // Health check 
         services.AddHealthChecks();
@@ -97,6 +98,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IPromptFileReader, PromptFileReader>();
         services.AddSingleton<IFileRetrieverService, FileRetrieverService>();
         services.AddSingleton<IPromptRetrieverService, PromptRetrieverService>();
+        services.AddSingleton<IAcademiesQueryService, AcademiesQueryService>();
         return services;
     }
 

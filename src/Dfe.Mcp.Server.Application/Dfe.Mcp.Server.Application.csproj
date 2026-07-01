@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Dfe.Mcp.Server.Data\Dfe.Mcp.Server.Data.csproj" />
     <ProjectReference Include="..\Dfe.Mcp.Server.Domain\Dfe.Mcp.Server.Domain.csproj" />
   </ItemGroup>
 

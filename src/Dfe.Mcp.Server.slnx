@@ -3,6 +3,7 @@
     <Project Path="tests/Dfe.McpServer.Web.Tests/Dfe.Mcp.Server.Web.Tests.csproj" />
   </Folder>
   <Project Path="Dfe.Mcp.Server.Application/Dfe.Mcp.Server.Application.csproj" />
+  <Project Path="Dfe.Mcp.Server.Data/Dfe.Mcp.Server.Data.csproj" Id="b7ee5b92-ad66-429d-abe7-76063d2cabd7" />
   <Project Path="Dfe.Mcp.Server.Domain/Dfe.Mcp.Server.Domain.csproj" />
   <Project Path="Dfe.Mcp.Server.Web/Dfe.Mcp.Server.Web.csproj" />
 </Solution>
