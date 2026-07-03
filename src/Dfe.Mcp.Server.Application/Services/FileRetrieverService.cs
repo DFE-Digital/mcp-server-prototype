@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace Dfe.Mcp.Server.Application.Services;
 
-public class FileRetrieverService(RestrictedPathsConfiguration restrictedPathsConfiguration) : IFileRetrieverService
+public partial class FileRetrieverService(RestrictedPathsConfiguration restrictedPathsConfiguration) : IFileRetrieverService
 {
     public string Resolve(string userPath)
     {
@@ -92,21 +92,17 @@ public class FileRetrieverService(RestrictedPathsConfiguration restrictedPathsCo
     {
         var rawPath = Uri.UnescapeDataString(uri.AbsolutePath);
          
-        var shortLinkMatch = Regex.Match(rawPath,
-            @"^/:[a-z]:/r/sites/[^/]+/(?:Shared%20Documents|Shared Documents|[^/]+)/(.+)$",
-            RegexOptions.IgnoreCase);
+        var shortLinkMatch = ShortLinkRegex().Match(rawPath);
 
         if (shortLinkMatch.Success)
             return ToLocalPath(shortLinkMatch.Groups[1].Value);
          
-        var libraryMatch = Regex.Match(rawPath,
-            @"/(?:Shared[ %]20Documents|Documents|[^/]+Library)/(.+)$",
-            RegexOptions.IgnoreCase);
+        var libraryMatch = SharedDocumentRegex().Match(rawPath);
 
         if (libraryMatch.Success)
             return ToLocalPath(libraryMatch.Groups[1].Value);
          
-        var sitesMatch = Regex.Match(rawPath, @"^/sites/[^/]+/(.*)$", RegexOptions.IgnoreCase);
+        var sitesMatch = SitesRegex().Match(rawPath);
         if (sitesMatch.Success)
             return ToLocalPath(sitesMatch.Groups[1].Value);
 
@@ -133,4 +129,11 @@ public class FileRetrieverService(RestrictedPathsConfiguration restrictedPathsCo
 
         return candidate.StartsWith(root, comparison);
     }
+
+    [GeneratedRegex(@"/(?:Shared[ %]20Documents|Documents|[^/]+Library)/(.+)$", RegexOptions.IgnoreCase, "en-GB")]
+    private static partial Regex SharedDocumentRegex();
+    [GeneratedRegex(@"^/sites/[^/]+/(.*)$", RegexOptions.IgnoreCase, "en-GB")]
+    private static partial Regex SitesRegex();
+    [GeneratedRegex(@"^/:[a-z]:/r/sites/[^/]+/(?:Shared%20Documents|Shared Documents|[^/]+)/(.+)$", RegexOptions.IgnoreCase, "en-GB")]
+    private static partial Regex ShortLinkRegex();
 }

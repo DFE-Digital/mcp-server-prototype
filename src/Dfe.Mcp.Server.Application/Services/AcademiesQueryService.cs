@@ -1,19 +1,15 @@
-﻿using Dfe.Mcp.Server.Application.Services.Interfaces;
+﻿using Dfe.Mcp.Server.Application.Helpers;
+using Dfe.Mcp.Server.Application.Services.Interfaces;
 using Dfe.Mcp.Server.Data;
 using Dfe.Mcp.Server.Domain;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace Dfe.Mcp.Server.Application.Services;
 
-public class AcademiesQueryService(IDbContextFactory<AcademiesDbContext> dbContextFactory) : IAcademiesQueryService
+public class AcademiesQueryService(ILogger<AcademiesQueryService> logger, IDbContextFactory<AcademiesDbContext> dbContextFactory) : IAcademiesQueryService
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        WriteIndented = false,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
-    public async Task<string> QueryAsync(EstablishmentQueryModel parameters)
+    public async Task<ResponseModel> RunQueryAsync(EstablishmentQueryModel parameters)
     {
         using var context = dbContextFactory.CreateDbContext();
         try
@@ -58,11 +54,12 @@ public class AcademiesQueryService(IDbContextFactory<AcademiesDbContext> dbConte
                 .Take(parameters.Limit)
                 .ToListAsync();
 
-            return JsonSerializer.Serialize(establishments, JsonOptions);
+            return new ResponseModel(JsonHelper.Serialize(establishments), establishments.Count);
         }
         catch (Exception ex)
         {
-            return JsonSerializer.Serialize(new { error = ex.Message }, JsonOptions);
+            logger.LogError(ex, "Error occurred while running query with parameters: {Parameters}", JsonHelper.Serialize(parameters));
+            return new ResponseModel(Error: ex.Message);
         }
     }
 }

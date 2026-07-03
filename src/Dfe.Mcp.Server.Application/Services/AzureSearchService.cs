@@ -2,6 +2,7 @@
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using Dfe.Mcp.Server.Application.Configurations;
+using Dfe.Mcp.Server.Application.Helpers;
 using Dfe.Mcp.Server.Application.Services.Interfaces;
 using Dfe.Mcp.Server.Domain;
 using Microsoft.Extensions.Logging;
@@ -45,13 +46,12 @@ public sealed class AzureSearchService: IAzureSearchService
     /// <param name="select">Fields to return, or null/empty for all fields.</param>f
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <summary>  
-    public async Task<AzureSearchResponse> SearchAsync(string indexKey, string query, int? top = null, string? filter = null, IEnumerable<string>? select = null, CancellationToken cancellationToken = default)
+    public async Task<ResponseModel> SearchAsync(string indexKey, string query, int? top = null, string? filter = null, IEnumerable<string>? select = null, CancellationToken cancellationToken = default)
     {
         if (!_clients.TryGetValue(indexKey, out var client))
         {
-            return new AzureSearchResponse
+            return new ResponseModel
             {
-                Query = query,
                 Error = $"Index key '{indexKey}' is not configured. " +
                         $"Valid keys: {string.Join(", ", IndexKeys)}"
             };
@@ -61,8 +61,6 @@ public sealed class AzureSearchService: IAzureSearchService
         var effectiveTop = top ?? _azureSearchConfiguration.DefaultTop;
         var effectiveSelect = (select?.ToList() is { Count: > 0 } s ? s : _azureSearchConfiguration.DefaultSelect)
                               .ToList();
-
-        _logger.LogDebug("Searching index '{Index}' (key={Key}) query='{Query}' top={Top} filter='{Filter}'", indexName, indexKey, query, effectiveTop, filter);
 
         try
         {
@@ -93,28 +91,23 @@ public sealed class AzureSearchService: IAzureSearchService
                 });
             }
 
-            return new AzureSearchResponse
+            return new ResponseModel
             {
-                Query = query,
                 TotalCount = response.Value.TotalCount,
-                Results = documents
+                Results = JsonHelper.Serialize(documents)
             };
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Search failed for index '{Index}'", indexName);
-            return new AzureSearchResponse
-            {
-                Query = query,
-                Error = ex.Message
-            };
+            return new ResponseModel(Error: ex.Message);
         }
     }
 
-    public Task<AzureSearchResponse> SearchEstablishmentAsync(string query, int? top = null, string? filter = null, IEnumerable<string>? select = null, CancellationToken cancellationToken = default)
+    public Task<ResponseModel> SearchEstablishmentAsync(string query, int? top = null, string? filter = null, IEnumerable<string>? select = null, CancellationToken cancellationToken = default)
         => SearchAsync("Establishment", query, top, filter, select,  cancellationToken: cancellationToken);
 
-    public Task<AzureSearchResponse> SearchOfstedAsync(string query, int? top = null, string? filter = null, IEnumerable<string>? select = null, CancellationToken cancellationToken = default)
+    public Task<ResponseModel> SearchOfstedAsync(string query, int? top = null, string? filter = null, IEnumerable<string>? select = null, CancellationToken cancellationToken = default)
         => SearchAsync("Ofsted", query, top, filter, select, cancellationToken: cancellationToken);
 }
 

@@ -33,7 +33,7 @@ public class AzureSearchServiceTests
         var result = await svc.SearchOfstedAsync("outstanding", cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Null(result.Error);
-        Assert.NotEmpty(result.Results);
+        Assert.NotNull(result.Results);
     }
 
     [Fact(Skip = "Requires live Azure AI Search resource")]

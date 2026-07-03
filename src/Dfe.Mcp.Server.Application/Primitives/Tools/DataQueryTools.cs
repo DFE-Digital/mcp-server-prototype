@@ -1,5 +1,4 @@
-﻿
-using Dfe.Mcp.Server.Application.Contants;
+﻿using Dfe.Mcp.Server.Application.Contants;
 using Dfe.Mcp.Server.Application.Services.Interfaces;
 using Dfe.Mcp.Server.Domain;
 using Microsoft.AspNetCore.Authorization;
@@ -9,9 +8,9 @@ using System.ComponentModel;
 namespace Dfe.Mcp.Server.Application.Primitives.Tools;
 
 [McpServerToolType]
-public sealed class DataQueryTools (IAcademiesQueryService academiesQueryService)
+public sealed class DataQueryTools(IAcademiesQueryService academiesQueryService, IDatabricksSqlService databricksSqlService)
 {
-    [McpServerTool, Description(
+    [McpServerTool(Name = "QueryEstablishmentsWithOfstedData", Title = "Query establishment, school or academy with Ofsted data"), Description(
     "Query the establishment, school or academy with ofsted data. Returns top 5 results. " +
     "Available filters: " +
     "'urn' - unique reference number of the establishment; " +
@@ -25,7 +24,7 @@ public sealed class DataQueryTools (IAcademiesQueryService academiesQueryService
     "'minPupils' - minimum total number of pupils; " +
     "'maxPupils' - maximum total number of pupils.")]
     [Authorize(Policy = Policy.ToolsAccess)]
-    public async Task<string> QueryEstablishmentsWithOfstedData(
+    public async Task<ResponseModel> QueryEstablishmentsWithOfstedData(
     [Description("URN (Unique Reference Number) of the establishment")]
     int? urn = null,
     [Description("Name of the establishment")]
@@ -46,7 +45,7 @@ public sealed class DataQueryTools (IAcademiesQueryService academiesQueryService
     int? minPupils = null,
     [Description("Maximum total number of pupils")]
     int? maxPupils = null,
-    [Description("Max rows to return, default 100")]
+    [Description("Max rows to return, default 5")]
     int limit = 5)
     {
         var parameters = new EstablishmentQueryModel
@@ -61,9 +60,49 @@ public sealed class DataQueryTools (IAcademiesQueryService academiesQueryService
             SafeguardingIsEffective = safeguardingIsEffective,
             MinPupils = minPupils,
             MaxPupils = maxPupils,
-            Limit = limit
+            Limit = Math.Clamp(limit, 1, 10)
         };
 
-        return await academiesQueryService.QueryAsync(parameters);
+        return await academiesQueryService.RunQueryAsync(parameters);
+    }
+
+    [McpServerTool(Name = "QueryEstablishmentsData", Title = "Query establishment, school or academy"), Description(
+    "Query the establishment. Returns top 5 results. " +
+    "Available filters: " +
+    "'urn' - unique reference number of the establishment; " +
+    "'ukprn' - UK Provider Reference Number of the establishment; " +
+    "'name' - name of the establishment; " +
+    "'establishmentPhase' - phase of the establishment (e.g. 'Primary', 'Secondary'); " +
+    "'trustName' - name of the trust; " + 
+    "'groupId' - ID of the establishment group; ")]
+    [Authorize(Policy = Policy.ToolsAccess)]
+    public async Task<ResponseModel> QueryEstablishmentsData(
+    [Description("URN (Unique Reference Number) of the establishment")]
+    string? urn = null,
+    [Description("UKPRN (UK Provider Reference Number) of the establishment")]
+    string? ukprn = null,
+    [Description("Name of the establishment")]
+    string? name = null,
+    [Description("Phase of the establishment e.g. 'Primary', 'Secondary'")]
+    string? establishmentPhase = null,
+    [Description("Name of the trust")]
+    string? TrustName = null,
+    [Description("Id of the establishment group")]
+    string? groupId = null,
+    [Description("Max rows to return, default 5")]
+    int limit = 5)
+    {
+        var parameters = new EstablishmentDatabricksQueryModel
+        {
+            Urn = urn,
+            GroupId = groupId,
+            EstablishmentName = name,
+            EstablishmentPhase = establishmentPhase,
+            UKPRN = ukprn,
+            TrustName = TrustName,
+            Limit = Math.Clamp(limit, 1, 10) 
+        };
+
+        return await databricksSqlService.RunEstablishmentQueryAsync(parameters);
     }
 }

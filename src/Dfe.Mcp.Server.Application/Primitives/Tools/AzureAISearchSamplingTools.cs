@@ -1,6 +1,8 @@
 ﻿using Dfe.Mcp.Server.Application.Contants;
-using Dfe.Mcp.Server.Application.Enums; 
+using Dfe.Mcp.Server.Application.Enums;
+using Dfe.Mcp.Server.Application.Helpers;
 using Dfe.Mcp.Server.Application.Services.Interfaces;
+using Dfe.Mcp.Server.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.AI; 
 using ModelContextProtocol.Server;
@@ -18,15 +20,14 @@ public sealed class AzureAISearchSamplingTools(AzureAISearchTools searchTools, I
     //[McpServerTool(Name = "summarise_ofsted", Title = "Summarise Ofsted results", ReadOnly = true)]
     [Description("Searches Ofsted information and uses the LLM to return a plain-English summary of the results.")]
     [Authorize(Policy = Policy.ToolsAccess)]
-    public async Task<string> SummariseOfsted(
+    public async Task<ResponseModel> SummariseOfsted(
         [Description("Full-text search query. Use '*' to return all records.")] string query,
         [Description("Maximum number of results to pass to the LLM (1–20). Default: 5.")] int top = 5,
         [Description("OData filter expression, e.g. \"OverallEffectiveness eq 1\". Leave empty for no filter.")] string? filter = null,
         CancellationToken cancellationToken = default)
     {
         if (server.ClientCapabilities?.Sampling is null)
-            return "Your client does not support LLM sampling. " +
-                   "Please call 'search_ofsted' directly to retrieve raw results.";
+            return new ResponseModel(Error: ErrorMessages.OfstedSamplingNotSupported);
 
         top = Math.Clamp(top, 1, 20);
          
@@ -36,7 +37,7 @@ public sealed class AzureAISearchSamplingTools(AzureAISearchTools searchTools, I
         var userMessage = promptRetrieverService.Render(template, new()
         {
             ["query"] = query,
-            ["rawJson"] = rawJson
+            ["rawJson"] = JsonHelper.Serialize(rawJson)
         });
         ChatMessage[] messages =
         [
@@ -54,6 +55,6 @@ public sealed class AzureAISearchSamplingTools(AzureAISearchTools searchTools, I
             .AsSamplingChatClient()
             .GetResponseAsync(messages, options, cancellationToken);
 
-        return response.Text ?? "No summary could be generated.";
+        return new ResponseModel(response.Text ?? "No summary could be generated.");
     }
 }

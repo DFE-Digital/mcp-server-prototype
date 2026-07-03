@@ -27,6 +27,7 @@ public static class ServiceCollectionExtensions
         services.AddMcpServices();
         services.AddAuthenticationAndAuthorisation(config);
         services.AddDatabaseConfigurations(config);
+        services.AddDatabricksConfigurations(config);
 
         // Health check 
         services.AddHealthChecks();

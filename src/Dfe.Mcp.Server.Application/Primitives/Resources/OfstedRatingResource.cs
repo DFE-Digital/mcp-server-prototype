@@ -1,9 +1,9 @@
 ﻿using Dfe.Mcp.Server.Application.Contants;
+using Dfe.Mcp.Server.Application.Helpers;
 using Dfe.Mcp.Server.Domain;
 using Microsoft.AspNetCore.Authorization;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
-using System.Text.Json;
 
 namespace Dfe.Mcp.Server.Application.Primitives.Resources;
 
@@ -38,7 +38,7 @@ public class OfstedRatingResource
     [Authorize(Policy = Policy.ResourceAccess)]
     public Task<string> GetAllOfstedRatingsAsync()
     {
-        return Task.FromResult(JsonSerializer.Serialize(_ratings));
+        return Task.FromResult(JsonHelper.Serialize(_ratings));
     }
 
     [McpServerResource(UriTemplate = "ofsted://ratings/{id}", Title = "Get Ofsted ratings by id", Name = "GetOfstedRatingById", MimeType = "application/json"), Description("Returns a single Ofsted rating by ID.")]
@@ -50,6 +50,6 @@ public class OfstedRatingResource
 
         return rating is null
             ? Task.FromResult($"No rating found with ID {id}.")
-            : Task.FromResult(JsonSerializer.Serialize(rating));
+            : Task.FromResult(JsonHelper.Serialize(rating));
     }
 }

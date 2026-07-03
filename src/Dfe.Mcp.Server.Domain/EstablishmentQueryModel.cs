@@ -12,5 +12,5 @@ public class EstablishmentQueryModel
     public bool? SafeguardingIsEffective { get; set; }
     public int? MinPupils { get; set; }
     public int? MaxPupils { get; set; }
-    public int Limit { get; set; } = 20;
+    public int Limit { get; set; } = 5;
 }
