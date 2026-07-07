@@ -14,14 +14,18 @@ namespace Dfe.Mcp.Server.Application.Services;
 public class DatabricksSqlService(ILogger<DatabricksSqlService> logger, HttpClient httpClient, DatabricksConfiguration databricksConfiguration)
     : IDatabricksSqlService
 {
-    private const string EstablishmentTableName = "rsd_catalog_30_bronze.manual_data_loading_area.dr_suess_establishment";
+    private const string Catalog = "rsd_catalog_20_silver.manual_data_loading_area";
+    private const string EstablishmentTableName = $"{Catalog}.dr_suess_establishment";
+    private const string TrustTableName = $"{Catalog}.dr_suess_trust";
 
     public async Task<ResponseModel> RunEstablishmentQueryAsync(EstablishmentDatabricksQueryModel model, CancellationToken cancellationToken = default)
     { 
         try
         {
             var whereClause = BuildFilter(model);
-            var query = $"SELECT * FROM {EstablishmentTableName} {whereClause} LIMIT {model.Limit}";
+            var query = $@"SELECT e.* FROM {EstablishmentTableName} e 
+                INNER JOIN {TrustTableName} t ON e.trust_name = t.trust_name
+                {whereClause} LIMIT {model.Limit}";
 
             var body = new
             {
@@ -29,7 +33,7 @@ public class DatabricksSqlService(ILogger<DatabricksSqlService> logger, HttpClie
                 statement = query,
                 wait_timeout = databricksConfiguration.WaitTimeOut
             };
-
+             
             var payload = JsonHelper.Serialize(body);
             using var request = new HttpRequestMessage(HttpMethod.Post, "/api/2.0/sql/statements")
             {
@@ -70,13 +74,13 @@ public class DatabricksSqlService(ILogger<DatabricksSqlService> logger, HttpClie
             }
         }
 
-        AddIfPresent("group_id", model.GroupId);
-        AddIfPresent("urn", model.Urn);
-        AddIfPresent("ukprn", model.UKPRN);
-        AddIfPresent("establishment_name", model.EstablishmentName);
-        AddIfPresent("establishment_phase", model.EstablishmentPhase);
-        AddIfPresent("trust_name", model.TrustName);
-        
+        AddIfPresent("LOWER(e.group_id)", model.GroupId?.ToLowerInvariant());
+        AddIfPresent("e.urn", model.Urn);
+        AddIfPresent("e.ukprn", model.UKPRN);
+        AddIfPresent("LOWER(e.establishment_name)", model.EstablishmentName?.ToLowerInvariant());
+        AddIfPresent("LOWER(e.establishment_phase)", model.EstablishmentPhase?.ToLowerInvariant());
+        AddIfPresent("LOWER(t.trust_name)", model.TrustName?.ToLowerInvariant());
+
         return conditions.Count > 0
             ? "WHERE " + string.Join(" AND ", conditions)
             : string.Empty;
