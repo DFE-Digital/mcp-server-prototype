@@ -1,4 +1,5 @@
 ﻿using Dfe.Mcp.Server.Application.Contants;
+using Dfe.Mcp.Server.Domain;
 using Microsoft.AspNetCore.Authorization;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
@@ -15,11 +16,10 @@ public sealed class AzureAISearchElicitationTools(AzureAISearchTools searchTools
     [McpServerTool(Name = "elicit_search_ofsted", Title = "Search Ofsted (guided)", ReadOnly = true)]
     [Description("Interactively collects search parameters from the user, then searches Ofsted information.")]
     [Authorize(Policy = Policy.ToolsAccess)]
-    public async Task<string> ElicitSearchOfsted(CancellationToken cancellationToken = default)
+    public async Task<ResponseModel> ElicitSearchOfsted(CancellationToken cancellationToken = default)
     {
         if (server.ClientCapabilities?.Elicitation is null)
-            return "Your client does not support interactive input. " +
-                   "Please call 'search_ofsted' directly with your query, top, filter, and select parameters.";
+            return new ResponseModel(Error: ErrorMessages.OfstedInteractiveInputNotSupported);
 
         var schema = new RequestSchema
         {
@@ -33,11 +33,11 @@ public sealed class AzureAISearchElicitationTools(AzureAISearchTools searchTools
         };
 
         var result = await server.ElicitAsync(
-            new ElicitRequestParams { Message = "Please provide your Ofsted search parameters.", RequestedSchema = schema },
+            new ElicitRequestParams { Message = ErrorMessages.InvalidSearchParameters, RequestedSchema = schema },
             cancellationToken);
 
         if (result.Action != "accept")
-            return "Search cancelled.";
+            return new ResponseModel(Error: ErrorMessages.CancelledSearch);
 
         return await searchTools.SearchOfsted(
             query: GetString(result.Content, "query", "*"),
@@ -50,11 +50,10 @@ public sealed class AzureAISearchElicitationTools(AzureAISearchTools searchTools
     [McpServerTool(Name = "elicit_search_establishment", Title = "Search Establishment or school or academy (guided)", ReadOnly = true)]
     [Description("Interactively collects search parameters from the user, then searches establishment, school, academy, or trust information.")]
     [Authorize(Policy = Policy.ToolsAccess)]
-    public async Task<string> ElicitSearchEstablishment(CancellationToken cancellationToken = default)
+    public async Task<ResponseModel> ElicitSearchEstablishment(CancellationToken cancellationToken = default)
     {
         if (server.ClientCapabilities?.Elicitation is null)
-            return "Your client does not support interactive input. " +
-                   "Please call 'search_establishment' directly with your query, top, filter, and select parameters.";
+            return new ResponseModel(Error: ErrorMessages.EstablishmentInteractiveInputNotSupported);
 
         var schema = new RequestSchema
         {
@@ -68,11 +67,11 @@ public sealed class AzureAISearchElicitationTools(AzureAISearchTools searchTools
         };
 
         var result = await server.ElicitAsync(
-            new ElicitRequestParams { Message = "Please provide your establishment search parameters.", RequestedSchema = schema },
+            new ElicitRequestParams { Message = ErrorMessages.InvalidSearchParameters, RequestedSchema = schema },
             cancellationToken);
 
         if (result.Action != "accept")
-            return "Search cancelled.";
+            return new ResponseModel(Error: ErrorMessages.CancelledSearch);
 
         return await searchTools.SearchEstablishment(
             query: GetString(result.Content, "query", "*"),
