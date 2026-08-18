@@ -10,7 +10,7 @@ namespace Dfe.Mcp.Server.Application.Primitives.Tools;
 [McpServerToolType]
 public sealed class DataQueryTools(IAcademiesQueryService academiesQueryService, IDatabricksSqlService databricksSqlService)
 {
-    [McpServerTool(Name = "QueryEstablishmentsWithOfstedData", Title = "Query establishment, school or academy with Ofsted data"), Description(
+    [McpServerTool(Name = "query_establishments_with_ofsted_data", Title = "Query establishment, school or academy with Ofsted data"), Description(
     "Query the establishment, school or academy with ofsted data. Returns top 5 results. " +
     "Available filters: " +
     "'urn' - unique reference number of the establishment; " +
@@ -66,7 +66,7 @@ public sealed class DataQueryTools(IAcademiesQueryService academiesQueryService,
         return await academiesQueryService.RunQueryAsync(parameters);
     }
 
-    [McpServerTool(Name = "QueryEstablishmentsData", Title = "Query establishment, school or academy"), Description(
+    [McpServerTool(Name = "query_establishments_data", Title = "Query establishment, school or academy"), Description(
     "Query the establishment. Returns top 5 results. " +
     "Available filters: " +
     "'urn' - unique reference number of the establishment; " +
