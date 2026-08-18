@@ -25,7 +25,7 @@ RUN dotnet restore ./src/Dfe.Mcp.Server.slnx && \
 # ==============================================
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION}-azurelinux3.0 AS final
 WORKDIR /app
-LABEL org.opencontainers.image.source="https://github.com/DFE-Digital/mcp-server-prototype"
+LABEL org.opencontainers.image.source="https://github.com/DFE-Digital/rsd-mcp-server"
 LABEL org.opencontainers.image.description="Dfe.Mcp.Server"
 
 COPY --from=build /app /app

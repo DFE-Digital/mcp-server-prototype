@@ -1,5 +1,6 @@
-# MCP Server Prototype
-A prototype of creating MCP server
+# RSD MCP Server
+
+RSD MCP server that retrieve data from multiple data sources.
 
 ## Model Context Protocol (MCP) Server
 
@@ -9,26 +10,21 @@ The **Model Context Protocol (MCP)** is an open standard developed by Anthropic 
 
 ### How It Works
 
-```
-┌─────────────┐        MCP Protocol        ┌─────────────┐
-│  AI Client  │ ◄────────────────────────► │  MCP Server │
-│ (Claude,    │   Tools / Resources /      │  (This app) │
-│  Cursor...) │        Prompts             └─────────────┘
-└─────────────┘
-```
+![alt text](/images/mcp.png)
 
 ### MCP Features
 
 #### MCP Server
 
 ##### Primitives
+
 An MCP server exposes three types of primitives:
 
-| Primitive | Explaination | Example | Who controls it |
-|-----------|-------------|---------|---------|
+| Primitive | Explanation | Example | Who controls it |
+| ----------- | ------------- | --------- | --------- |
 | **Tools** | Functions that your LLM can actively call, and decides when to use them based on user requests. Tools can write to databases, call external APIs, modify files, or trigger other logic. | Search, send email, query DB | Model |
 | **Resources** | Passive data sources that provide read-only access to information for context, such as file contents, database schemas, or API documentation. | Files, API responses, Read calendars | Application |
-| **Prompts** | Pre-built instruction templates that tell the model to work with specific tools and resources. | Summarise, translate, draft an email | User |
+| **Prompts** | Pre-built instruction templates that tell the model to work with specific tools and resources. | Summaries, translate, draft an email | User |
 
 ##### Transports
 
@@ -39,15 +35,13 @@ MCP supports multiple transport types:
 | **Stdio** | Local processes, CLI tools |
 | **Streamable HTTP** | Remote/hosted servers (recommended) |
 
-
 #### MCP Client
 
-| Feature | Explaination | Example |
-|-----------|-------------|---------|
+| Feature | Explanation | Example |
+| ----------- | ------------- | --------- |
 | **Elicitation** | Elicitation enables servers to request specific information from users during interactions, providing a structured way for servers to gather information on demand. | User's preferences e.g preferred contact number, confirmation before booking |
-| **Roots** | Roots allow clients to specify which directories servers should focus on, communicating intended scope through a coordination mechanism. | Access to specifice file directory e.g. specific sharepoint folder |
+| **Roots** | Roots allow clients to specify which directories servers should focus on, communicating intended scope through a coordination mechanism. | Access to specific file directory e.g. specific sharepoint folder |
 | **Sampling** | Sampling allows servers to request LLM completions through the client, enabling an agentic workflow. This approach puts the client in complete control of user permissions and security measures. | Send list of schools to an LLM to choose best school |
-
 
 ### API Reference
 
@@ -113,17 +107,18 @@ npx @modelcontextprotocol/inspector
 #### Connect to Your Server
 
 1. Open the URL printed in the terminal (token is pre-filled):
+
 ```
    http://localhost:6274/?MCP_PROXY_AUTH_TOKEN=<token>
 ```
-2. Set **Transport Type** → `Streamable HTTP`
-3. Set **URL** → `http://localhost:7146/mcp`
-4. Click **Connect**
+
+1. Set **Transport Type** → `Streamable HTTP`
+2. Set **URL** → `http://localhost:7146/mcp`
+3. Click **Connect**
 
 You can now browse tools, invoke them with parameters, and inspect raw JSON responses.
 
 ### Connecting to an AI Client
-
 
 ## Resources
 

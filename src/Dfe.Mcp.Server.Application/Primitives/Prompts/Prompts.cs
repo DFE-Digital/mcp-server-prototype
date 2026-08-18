@@ -10,7 +10,7 @@ namespace Dfe.Mcp.Server.Application.Primitives.Prompts;
 [McpServerPromptType]
 public class Prompts(IPromptRetrieverService promptRetrieverService)
 {
-    [McpServerPrompt(Name = "GetSystemPrompt", Title = "Gets system instruction prompt"), Description("Gets a system instruction prompt.")]
+    [McpServerPrompt(Name = "get_system_prompt", Title = "Gets system instruction prompt"), Description("Gets a system instruction prompt.")]
     [Authorize(Policy = Policy.PromptAccess)]
     public string GetSystemPrompt(SystemPromptType promptType)
     {
@@ -18,17 +18,6 @@ public class Prompts(IPromptRetrieverService promptRetrieverService)
 
         if (string.IsNullOrWhiteSpace(prompt))
             throw new InvalidOperationException("System instruction prompt is missing or empty.");
-
-        return prompt;
-    }
-    [McpServerPrompt(Name = "GetUserPrompt", Title = "Gets user prompt"), Description("Gets the user prompt.")]
-    [Authorize(Policy = Policy.PromptAccess)]
-    public string GetUserPrompt(UserPromptType promptType)
-    {
-        var prompt = promptRetrieverService.GetUserPrompt(promptType);
-
-        if (string.IsNullOrWhiteSpace(prompt))
-            throw new InvalidOperationException("Ofsted prompt is missing or empty.");
 
         return prompt;
     }

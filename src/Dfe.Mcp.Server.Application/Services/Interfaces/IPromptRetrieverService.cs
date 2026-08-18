@@ -4,7 +4,5 @@ namespace Dfe.Mcp.Server.Application.Services.Interfaces;
 
 public interface IPromptRetrieverService
 {
-    string GetSystemPrompt(SystemPromptType promptType);
-    string GetUserPrompt(UserPromptType promptType);
-    string Render(string template, Dictionary<string, string> values);
+    string GetSystemPrompt(SystemPromptType promptType); 
 }
