@@ -12,7 +12,6 @@ namespace Dfe.Mcp.Server.Application.Primitives.Tools;
 [McpServerToolType]
 public sealed class AzureAISearchElicitationTools(AzureAISearchTools searchTools, McpServer server)
 { 
-
     [McpServerTool(Name = "elicit_search_ofsted", Title = "Search Ofsted (guided)", ReadOnly = true)]
     [Description("Interactively collects search parameters from the user, then searches Ofsted information.")]
     [Authorize(Policy = Policy.ToolsAccess)]

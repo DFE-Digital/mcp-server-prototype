@@ -1,4 +1,6 @@
-﻿using Dfe.Mcp.Server.Application.Configurations;
+﻿using Azure.Search.Documents;
+using GovUK.Dfe.CoreLibs.SharePoint;
+using Dfe.Mcp.Server.Application.Configurations;
 using Dfe.Mcp.Server.Application.Contants;
 using Dfe.Mcp.Server.Application.FileRetrievers;
 using Dfe.Mcp.Server.Application.FileRetrievers.Interfaces;
@@ -9,7 +11,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
 using ModelContextProtocol.Authentication;
 using ModelContextProtocol.Server;
-using System.Runtime.CompilerServices;
 
 namespace Dfe.Mcp.Server.Web.Extensions;
 
@@ -25,17 +26,22 @@ public static class ServiceCollectionExtensions
     {
         services.AddMcpOptions(config);
         services.AddMcpServices();
-        services.AddAuthenticationAndAuthorisation(config);
+        services.AddAuthenticationAndAuthorization(config);
         services.AddDatabaseConfigurations(config);
         services.AddDatabricksConfigurations(config);
+
+        // SharePoint
+        services.AddSharePointServices(config, "SharePoint");
 
         // Health check 
         services.AddHealthChecks();
 
         // CORS 
         services.AddCorsPolicies(config);
+
         // MCP Server
         services.AddMcpServerConfigured();
+
         return services;
     }
     /// <summary>
@@ -77,13 +83,9 @@ public static class ServiceCollectionExtensions
         var mcpServerOptions = config.GetSection("McpServer").Get<McpServerConfiguration>()
             ?? throw new InvalidOperationException("McpServer section is missing!");
 
-        var restrictedPathsOptions = config.GetSection("RestrictedPaths").Get<RestrictedPathsConfiguration>()
-            ?? throw new InvalidOperationException("RestrictedPaths section is missing!");
-
         services.AddSingleton(azureSearchOptions);
         services.AddSingleton(promptFiles);
         services.AddSingleton(mcpServerOptions);
-        services.AddSingleton(restrictedPathsOptions);
 
         return services;
     }
@@ -95,11 +97,14 @@ public static class ServiceCollectionExtensions
     /// <returns>An instance of <see cref="IServiceCollection"/></returns>
     public static IServiceCollection AddMcpServices(this IServiceCollection services)
     {
+        services.AddSingleton(new SearchClientOptions());
         services.AddScoped<IAzureSearchService, AzureSearchService>();
-        services.AddSingleton<IPromptFileReader, PromptFileReader>();
-        services.AddSingleton<IFileRetrieverService, FileRetrieverService>();
-        services.AddSingleton<IPromptRetrieverService, PromptRetrieverService>();
-        services.AddSingleton<IAcademiesQueryService, AcademiesQueryService>();
+        services.AddScoped<IPromptFileReader, PromptFileReader>();
+        services.AddScoped<IPromptRetrieverService, PromptRetrieverService>();
+        services.AddScoped<IAcademiesQueryService, AcademiesQueryService>();
+        services.AddScoped<IDatabricksSqlService, DatabricksSqlService>();
+        services.AddScoped<IDateTimeService, DateTimeService>();
+        services.AddScoped<ISharePointDocumentService, SharePointDocumentService>();
         return services;
     }
 
@@ -119,15 +124,23 @@ public static class ServiceCollectionExtensions
         });
 
         static bool HasAccess(AuthorizationHandlerContext ctx, string scope, string role) =>
-            ctx.User.HasClaim(Claim.ScopeName, scope) ||
-            ctx.User.HasClaim(Claim.ScopeUrl, scope) ||
+            HasScope(ctx, Claim.ScopeName, scope) ||
+            HasScope(ctx, Claim.ScopeUrl, scope) ||
             ctx.User.IsInRole(role) ||
             ctx.User.HasClaim(Claim.RoleName, role);
+
+        // Entra ID issues every consented scope in a single space delimited "scp" claim, so the
+        // claim value has to be split before comparing. Matching the whole value would only ever
+        // authorise a token that carries exactly one scope.
+        static bool HasScope(AuthorizationHandlerContext ctx, string claimType, string scope) =>
+            ctx.User.FindAll(claimType)
+                .SelectMany(claim => claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                .Contains(scope, StringComparer.Ordinal);
 
         return services;
     }
 
-    private static IServiceCollection AddAuthenticationAndAuthorisation(this IServiceCollection services, IConfiguration config)
+    private static IServiceCollection AddAuthenticationAndAuthorization(this IServiceCollection services, IConfiguration config)
     {
         var tenantId = config["AzureAd:TenantId"];
         var authorizationServer = $"{config["AzureAd:Instance"]}{tenantId}/v2.0";

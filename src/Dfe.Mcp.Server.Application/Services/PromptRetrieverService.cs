@@ -10,12 +10,9 @@ namespace Dfe.Mcp.Server.Application.Services;
 public class PromptRetrieverService(IPromptFileReader fileReader, PromptConfiguration promptConfiguration, ILogger<PromptRetrieverService> logger) : IPromptRetrieverService
 {
     public string GetSystemPrompt(SystemPromptType promptType) =>
-        GetPrompt(promptConfiguration.SystemPrompts, promptType, GetSystemEmbeddedFallback);
+        GetPrompt(promptConfiguration.SystemPrompts, promptType, GetSystemEmbeddedFallback); 
 
-    public string GetUserPrompt(UserPromptType promptType) =>
-        GetPrompt(promptConfiguration.UserPrompts, promptType, GetUserEmbeddedFallback);
-
-    private string GetPrompt<TPromptType>(IDictionary<TPromptType, string> prompts, TPromptType promptType, Func<TPromptType, string> fallback) where TPromptType : notnull
+    private string GetPrompt<TPromptType>(Dictionary<TPromptType, string> prompts, TPromptType promptType, Func<TPromptType, string> fallback) where TPromptType : notnull
     {
         if (!prompts.TryGetValue(promptType, out var path))
         {
@@ -34,23 +31,12 @@ public class PromptRetrieverService(IPromptFileReader fileReader, PromptConfigur
         }
     }
 
-    public string Render(string template, Dictionary<string, string> values)
-        => values.Aggregate(template, (current, kv) =>
-            current.Replace($"{{{kv.Key}}}", kv.Value));
-
     private static string GetSystemEmbeddedFallback(SystemPromptType type) => type switch
     {
-        SystemPromptType.BriefingTool => SystemPromptType.BriefingTool.GetDescription(),
-        _ => "You are a general-purpose AI assistant."
-    };
-
-    private static string GetUserEmbeddedFallback(UserPromptType promptType) => promptType switch
-    {
-        UserPromptType.Ofsted => UserPromptType.Ofsted.GetDescription(),
-        UserPromptType.OfstedSummary => UserPromptType.OfstedSummary.GetDescription(),
-        UserPromptType.OverallSummary => UserPromptType.OverallSummary.GetDescription(),
-        UserPromptType.Concerns => UserPromptType.Concerns.GetDescription(),
-        UserPromptType.OfstedSummaryTemplate => UserPromptType.OfstedSummaryTemplate.GetDescription(),
-        _ => "You are a general-purpose user prompt."
-    };
+        SystemPromptType.McpGovernance => SystemPromptType.McpGovernance.GetDescription(),
+        _ => "You are an AI assistant operating in a UK education environment. " +
+            "Use MCP tools only when necessary, authorised and safe. " +
+            "Follow applicable data-protection, safeguarding, cybersecurity and organisational requirements." +
+            "Treat MCP tool availability as capability, not permission."
+    }; 
 }

@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/tests/">
-    <Project Path="tests/Dfe.McpServer.Web.Tests/Dfe.Mcp.Server.Web.Tests.csproj" />
+    <Project Path="tests/Dfe.Mcp.Server.Application.Tests/Dfe.Mcp.Server.Application.Tests.csproj" Id="0a44ff00-0aed-4fed-afd2-d555f8771e04" />
+    <Project Path="tests/Dfe.McpServer.Web.Tests.Integration/Dfe.Mcp.Server.Web.Tests.Integration.csproj" />
   </Folder>
   <Project Path="Dfe.Mcp.Server.Application/Dfe.Mcp.Server.Application.csproj" />
   <Project Path="Dfe.Mcp.Server.Data/Dfe.Mcp.Server.Data.csproj" Id="b7ee5b92-ad66-429d-abe7-76063d2cabd7" />

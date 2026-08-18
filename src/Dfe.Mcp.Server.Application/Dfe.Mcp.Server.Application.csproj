@@ -8,13 +8,19 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Search.Documents" Version="12.0.0" />
-    <PackageReference Include="ModelContextProtocol" Version="1.4.0" />
-    <PackageReference Include="ModelContextProtocol.AspNetCore" Version="1.4.0" />
+    <PackageReference Include="GovUK.Dfe.CoreLibs.SharePoint" Version="0.0.2" />
+    <PackageReference Include="ModelContextProtocol" Version="2.2.0" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Kiota.Abstractions" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Dfe.Mcp.Server.Data\Dfe.Mcp.Server.Data.csproj" />
     <ProjectReference Include="..\Dfe.Mcp.Server.Domain\Dfe.Mcp.Server.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Primitives\Resources\" />
   </ItemGroup>
 
 </Project>

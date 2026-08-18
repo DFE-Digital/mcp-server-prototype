@@ -2,7 +2,6 @@
 using Dfe.Mcp.Server.Application.Primitives.Prompts;
 using Dfe.Mcp.Server.Application.Primitives.Resources;
 using Dfe.Mcp.Server.Application.Primitives.Tools;
-using ModelContextProtocol.Server;
 
 namespace Dfe.Mcp.Server.Web.Extensions;
 
@@ -17,7 +16,12 @@ public static class McpServerExtensions
     {
         var provider = services.BuildServiceProvider();
 
-        var mcpServerOptions = provider.GetRequiredService<McpServerConfiguration>(); 
+        var mcpServerOptions = provider.GetRequiredService<McpServerConfiguration>();
+
+        // AzureAISearchElicitationTools takes AzureAISearchTools as a constructor dependency,
+        // so the tool type must be resolvable from the request scope.
+        services.AddScoped<AzureAISearchTools>();
+
         services
             .AddMcpServer(options =>
             {
@@ -34,16 +38,9 @@ public static class McpServerExtensions
                 options.Stateless = mcpServerOptions.IsStateless;
             })
             .WithToolsFromAssembly(typeof(AzureAISearchTools).Assembly)
-            .WithResourcesFromAssembly(typeof(OfstedRatingResource).Assembly)
+            .WithResourcesFromAssembly(typeof(SharePointResource).Assembly)
             .WithPromptsFromAssembly(typeof(Prompts).Assembly) 
             .AddAuthorizationFilters();
-
-        var toolDescriptor = services.FirstOrDefault(d =>
-            d.ServiceType == typeof(McpServerTool) ||
-            d.ImplementationType == typeof(McpServerTool));
-
-        if (toolDescriptor != null)
-            services.Remove(toolDescriptor);
 
         return services;
     }

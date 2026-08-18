@@ -20,7 +20,8 @@ public sealed class AzureSearchService: IAzureSearchService
 
     public AzureSearchService(
         AzureSearchConfiguration azureSearchConfiguration,
-        ILogger<AzureSearchService> logger)
+        ILogger<AzureSearchService> logger,
+        SearchClientOptions searchClientOptions)
     {
         _azureSearchConfiguration = azureSearchConfiguration;
         _logger = logger;
@@ -30,7 +31,7 @@ public sealed class AzureSearchService: IAzureSearchService
         var credential = new AzureKeyCredential(_azureSearchConfiguration.ApiKey);
 
         _clients = _azureSearchConfiguration.Indexes.ToDictionary(kvp => kvp.Key,
-            kvp => new SearchClient(endpoint, kvp.Value, credential));
+            kvp => new SearchClient(endpoint, kvp.Value, credential, searchClientOptions));
     }
 
     /// <summary>Returns all configured logical index keys.</summary>
