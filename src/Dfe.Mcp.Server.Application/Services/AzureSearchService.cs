@@ -25,8 +25,7 @@ public sealed class AzureSearchService: IAzureSearchService
     {
         _azureSearchConfiguration = azureSearchConfiguration;
         _logger = logger;
-
-        // Build one SearchClient per configured index at startup
+         
         var endpoint = new Uri(_azureSearchConfiguration.Endpoint);
         var credential = new AzureKeyCredential(_azureSearchConfiguration.ApiKey);
 
@@ -106,9 +105,14 @@ public sealed class AzureSearchService: IAzureSearchService
     }
 
     public Task<ResponseModel> SearchEstablishmentAsync(string query, int? top = null, string? filter = null, IEnumerable<string>? select = null, CancellationToken cancellationToken = default)
-        => SearchAsync("Establishment", query, top, filter, select,  cancellationToken: cancellationToken);
+        => SearchAsync("Establishments", query, top, filter, select,  cancellationToken: cancellationToken);
 
     public Task<ResponseModel> SearchOfstedAsync(string query, int? top = null, string? filter = null, IEnumerable<string>? select = null, CancellationToken cancellationToken = default)
         => SearchAsync("Ofsted", query, top, filter, select, cancellationToken: cancellationToken);
+
+    public Task<ResponseModel> SearchRecastConcernsAsync(string query, int? top = null, string? filter = null, IEnumerable<string>? select = null, CancellationToken cancellationToken = default)
+        => SearchAsync("RecastConcerns", query, top, filter, select, cancellationToken: cancellationToken);
+    public Task<ResponseModel> SearchRiseConcernsAsync(string query, int? top = null, string? filter = null, IEnumerable<string>? select = null, CancellationToken cancellationToken = default)
+        => SearchAsync("RiseConcerns", query, top, filter, select, cancellationToken: cancellationToken);
 }
 

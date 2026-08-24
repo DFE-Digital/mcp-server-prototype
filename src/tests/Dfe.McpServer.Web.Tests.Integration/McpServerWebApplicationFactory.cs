@@ -29,6 +29,8 @@ public class McpServerWebApplicationFactory : WebApplicationFactory<Program>
 {
     public const string OfstedIndexName = "ofsted-index";
     public const string EstablishmentIndexName = "establishment-index";
+    public const string RecastConcernsIndexName = "recast-concerns-index";
+    public const string RiseConcernsIndexName = "rise-concerns-index";
     public const string FakeAzureSearchApiKey = "fake-search-api-key";
     public const string FakeDatabricksWorkspaceUrl = "https://fake.databricks.net";
     public const string FakeDatabricksWarehouseId = "fake-warehouse-id";
@@ -123,6 +125,8 @@ public class McpServerWebApplicationFactory : WebApplicationFactory<Program>
         ["AzureSearch:ApiKey"] = "test-api-key",
         ["AzureSearch:Indexes:Ofsted"] = "ofstedindex",
         ["AzureSearch:Indexes:Establishment"] = "establishmentindex",
+        ["AzureSearch:Indexes:RecastConcerns"] = "recastconcernsindex",
+        ["AzureSearch:Indexes:RiseConcerns"] = "riseconcernsindex",
 
         // Prompt Files
         ["PromptFiles:SystemPrompts:McpGovernance"] = "Prompts/MCP_Governance_System_Prompt_Addendum.md",
@@ -203,7 +207,9 @@ public class McpServerWebApplicationFactory : WebApplicationFactory<Program>
             Indexes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 ["Ofsted"] = OfstedIndexName,
-                ["Establishment"] = EstablishmentIndexName
+                ["Establishments"] = EstablishmentIndexName,
+                ["RecastConcerns"] = RecastConcernsIndexName,
+                ["RiseConcerns"] = RiseConcernsIndexName
             }
         });
 

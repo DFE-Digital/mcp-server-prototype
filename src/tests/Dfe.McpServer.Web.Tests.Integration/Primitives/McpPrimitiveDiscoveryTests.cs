@@ -9,6 +9,8 @@ public class McpPrimitiveDiscoveryTests : McpIntegrationTestBase
     [
         "search_ofsted",
         "search_establishment",
+        "search_recast_concerns",
+        "search_rise_concerns",
         "elicit_search_ofsted",
         "elicit_search_establishment",
         "query_establishments_with_ofsted_data",
